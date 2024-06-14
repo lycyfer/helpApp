@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Employee {
+  id                  String                @id @default(auto()) @map("_id") @db.ObjectId
+  photoUrls           String?
+  firstName           String
+  lastName            String
+  age                 Int
+  position            String
+  employeeHistory     String
+  dateHired           DateTime
+  EmployeeApplication EmployeeApplication[]
+}
+
+model EmployeeHistory {
+  id                String           @id @default(auto()) @map("_id") @db.ObjectId
+  company           String
+  position          String
+  startDate         DateTime
+  endDate           DateTime
+  EmployeeAccount   EmployeeAccount? @relation(fields: [employeeAccountId], references: [id])
+  employeeAccountId String?          @db.ObjectId
+}
+
+model EmployeeAccount {
+  id              String                @id @default(auto()) @map("_id") @db.ObjectId
+  photoUrl        String?
+  firstName       String
+  lastName        String
+  age             Int
+  position        String
+  employeeHistory EmployeeHistory[]
+  dateHired       DateTime
+  login           String                @unique
+  password        String
+  email           String                @unique
+  phoneNumber     String
+  department      String
+  role            String
+  isActive        Boolean               @default(true)
+  lastLogin       DateTime
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  applications    EmployeeApplication[]
+}
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  email      String
+  review     String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Application {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  phone     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id       String @id @default(auto()) @map("_id") @db.ObjectId
+  username String @unique
+  password String
+  role     String @default("user")
+}
+
+model AdminPanel {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+}
+
+model EmployeeApplication {
+  id                String          @id @default(auto()) @map("_id") @db.ObjectId
+  employee          EmployeeAccount @relation(fields: [employeeAccountId], references: [id])
+  employeeAccountId String          @db.ObjectId
+  name              String
+  email             String
+  phone             String
+  subject           String
+  message           String
+  createdAt         DateTime        @default(now())
+  Employee          Employee?       @relation(fields: [employeeId], references: [id])
+  employeeId        String?         @db.ObjectId
+}
